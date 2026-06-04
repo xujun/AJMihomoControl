@@ -341,13 +341,27 @@ extension AppDelegate {
         let newLang: AppLanguage = AppLanguage.isChinese ? .en : .zh
         AppLanguage.set(newLang)
 
-        // Relaunch app with new language
+        // Record current app path and working directory
         let appPath = Bundle.main.bundlePath
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            NSWorkspace.shared.openApplication(at: URL(fileURLWithPath: appPath), configuration: NSWorkspace.OpenConfiguration()) { _, _ in
-                NSApp.terminate(nil)
-            }
-        }
+        let cwd = FileManager.default.currentDirectoryPath
+
+        // Launch a detached shell script that waits briefly, then opens the app
+        let script = """
+        sleep 1
+        cd "\(cwd)"
+        open "\(appPath)"
+        """
+
+        let relaunchProcess = Process()
+        relaunchProcess.executableURL = URL(fileURLWithPath: "/bin/bash")
+        relaunchProcess.arguments = ["-c", script]
+        relaunchProcess.launchPath = "/bin/bash"
+        relaunchProcess.arguments = ["-c", script]
+        try? relaunchProcess.run()
+        // Don't wait, let it run detached
+
+        // Terminate current app
+        NSApp.terminate(nil)
     }
 }
 

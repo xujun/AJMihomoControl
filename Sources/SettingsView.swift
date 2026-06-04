@@ -7,6 +7,9 @@
 //
 
 import SwiftUI
+#if os(macOS)
+import Cocoa
+#endif
 
 // MARK: - 控制面板窗口（仅代理状态 + Mihomo 状态）
 struct SettingsView: View {
@@ -151,6 +154,22 @@ struct AboutMenuContent: View {
             Text("\(L10n.version) 1.0.0")
                 .font(.caption)
                 .foregroundColor(.secondary)
+
+            HStack(spacing: 4) {
+                Text("\(L10n.authorLabel):")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Button(action: {
+                    if let url = URL(string: L10n.authorLink) {
+                        NSWorkspace.shared.open(url)
+                    }
+                }) {
+                    Text(L10n.authorName)
+                        .font(.caption)
+                }
+                .buttonStyle(.plain)
+                .foregroundColor(.accentColor)
+            }
 
             Divider()
 
