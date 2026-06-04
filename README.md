@@ -102,6 +102,8 @@ AJMihomoControl/
 - 设置配置文件路径（默认：`/usr/local/etc/mihomo/config.yaml`）
 - 设置工作目录
 
+![Mihomo Config](images/MihomoConfig.png)
+
 ### 工作原理
 
 应用使用 macOS 内置的 `networksetup` 命令管理系统代理设置，等同于在 **系统设置 → 网络 → 代理** 中手动配置。
@@ -210,6 +212,8 @@ AJMihomoControl/
 - Configure binary path (auto-detected for Homebrew)
 - Set config file path (default: `/usr/local/etc/mihomo/config.yaml`)
 - Set working directory
+
+![Mihomo Config](images/MihomoConfig_en.png)
 
 ### How It Works
 
