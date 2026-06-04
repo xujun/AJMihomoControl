@@ -1,3 +1,11 @@
+//
+//  AppDelegate.swift
+//  AJMihomoControl
+//
+//  Created by xujun (https://github.com/xujun)
+//  Copyright © 2026 xujun. All rights reserved.
+//
+
 import Cocoa
 import SwiftUI
 import Combine

@@ -26,5 +26,9 @@
     <true/>
     <key>NSAppleEventsUsageDescription</key>
     <string>This app needs to control network settings to manage system proxy.</string>
+    <key>NSHumanReadableCopyright</key>
+    <string>Copyright © 2026 xujun. All rights reserved.</string>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>en</string>
 </dict>
 </plist>

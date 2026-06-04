@@ -1,3 +1,11 @@
+//
+//  AppConfig.swift
+//  AJMihomoControl
+//
+//  Created by xujun (https://github.com/xujun)
+//  Copyright © 2026 xujun. All rights reserved.
+//
+
 import Foundation
 
 /// 应用配置，通过 UserDefaults 持久化

@@ -1,3 +1,11 @@
+//
+//  MihomoManager.swift
+//  AJMihomoControl
+//
+//  Created by xujun (https://github.com/xujun)
+//  Copyright © 2026 xujun. All rights reserved.
+//
+
 import Foundation
 
 /// 管理 mihomo 进程生命周期

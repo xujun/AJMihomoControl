@@ -1,3 +1,11 @@
+//
+//  ProxyManager.swift
+//  AJMihomoControl
+//
+//  Created by xujun (https://github.com/xujun)
+//  Copyright © 2026 xujun. All rights reserved.
+//
+
 import Foundation
 
 /// 通过 networksetup 管理 macOS 系统代理设置

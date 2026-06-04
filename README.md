@@ -87,11 +87,15 @@ AJMihomoControl/
 - **左键点击** 状态栏图标 → 打开控制面板
 - **右键点击** 状态栏图标 → 快捷操作菜单
 
+![Menu](images/memu.png)
+
 **控制面板**
 - 启用/停用系统代理
 - 启动/停止/重启 mihomo 服务
 - 启用代理时自动启动 mihomo（如未运行）
 - 停止 mihomo 时自动停用系统代理
+
+![Control Panel](images/control.png)
 
 **Mihomo 配置**
 - 配置二进制路径（自动检测 Homebrew 安装）
@@ -192,11 +196,15 @@ AJMihomoControl/
 - **Left-click** status bar icon → Open Control Panel
 - **Right-click** status bar icon → Quick actions menu
 
+![Menu](images/memu.png)
+
 **Control Panel**
 - Enable/Disable system proxy
 - Start/Stop/Restart mihomo service
 - Enable proxy auto-starts mihomo if not running
 - Stop mihomo auto-disables system proxy
+
+![Control Panel](images/control.png)
 
 **Mihomo Config**
 - Configure binary path (auto-detected for Homebrew)
@@ -217,3 +225,10 @@ When enabled, it configures:
 ## License / 许可
 
 MIT. See [LICENSE](LICENSE) for details.
+
+---
+
+## Author / 作者
+
+- GitHub: [xujun](https://github.com/xujun)
+- Email: 5798473@qq.com

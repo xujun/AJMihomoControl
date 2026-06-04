@@ -1,3 +1,11 @@
+//
+//  SettingsView.swift
+//  AJMihomoControl
+//
+//  Created by xujun (https://github.com/xujun)
+//  Copyright © 2026 xujun. All rights reserved.
+//
+
 import SwiftUI
 
 // MARK: - 控制面板窗口（仅代理状态 + Mihomo 状态）
