@@ -163,21 +163,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         menu.addItem(NSMenuItem.separator())
 
-        // Language submenu
-        let langMenu = NSMenu()
-        for lang in AppLanguage.allCases {
-            let isSelected = lang == AppLanguage.current
-            let title = "\(isSelected ? "✓ " : "  ")\(lang.displayName)"
-            let langItem = NSMenuItem(title: title, action: #selector(changeLanguage(_:)), keyEquivalent: "")
-            langItem.target = self
-            langItem.representedObject = lang.rawValue
-            langItem.image = nil
-            langMenu.addItem(langItem)
-        }
-        let langItem = NSMenuItem(title: L10n.language, action: nil, keyEquivalent: "")
-        langItem.submenu = langMenu
-        langItem.image = nil
-        menu.addItem(langItem)
+        // Language toggle
+        let langTitle = AppLanguage.isChinese ? "Change to English" : "更改到中文"
+        let langToggleItem = NSMenuItem(title: langTitle, action: #selector(toggleLanguage), keyEquivalent: "")
+        langToggleItem.target = self
+        clearMenuItemIcon(langToggleItem)
+        menu.addItem(langToggleItem)
 
         menu.addItem(NSMenuItem.separator())
 
@@ -346,10 +337,9 @@ extension AppDelegate {
         openAboutWindow()
     }
 
-    @objc func changeLanguage(_ sender: NSMenuItem) {
-        guard let raw = sender.representedObject as? String,
-              let lang = AppLanguage(rawValue: raw) else { return }
-        AppLanguage.set(lang)
+    @objc func toggleLanguage() {
+        let newLang: AppLanguage = AppLanguage.isChinese ? .en : .zh
+        AppLanguage.set(newLang)
 
         // Relaunch app with new language
         let appPath = Bundle.main.bundlePath
