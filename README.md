@@ -196,7 +196,7 @@ AJMihomoControl/
 - **Left-click** status bar icon → Open Control Panel
 - **Right-click** status bar icon → Quick actions menu
 
-![Menu](images/memu.png)
+![Menu](images/memu_en.png)
 
 **Control Panel**
 - Enable/Disable system proxy
@@ -204,7 +204,7 @@ AJMihomoControl/
 - Enable proxy auto-starts mihomo if not running
 - Stop mihomo auto-disables system proxy
 
-![Control Panel](images/control.png)
+![Control Panel](images/control_en.png)
 
 **Mihomo Config**
 - Configure binary path (auto-detected for Homebrew)
