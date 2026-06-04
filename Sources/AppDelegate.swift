@@ -351,16 +351,13 @@ extension AppDelegate {
               let lang = AppLanguage(rawValue: raw) else { return }
         AppLanguage.set(lang)
 
-        // Close all windows so they reopen with new language
-        controlWindow?.close()
-        controlWindow = nil
-        mihomoConfigWindow?.close()
-        mihomoConfigWindow = nil
-        aboutWindow?.close()
-        aboutWindow = nil
-
-        // Reopen control panel
-        openSettingsWindow()
+        // Relaunch app with new language
+        let appPath = Bundle.main.bundlePath
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            NSWorkspace.shared.openApplication(at: URL(fileURLWithPath: appPath), configuration: NSWorkspace.OpenConfiguration()) { _, _ in
+                NSApp.terminate(nil)
+            }
+        }
     }
 }
 
