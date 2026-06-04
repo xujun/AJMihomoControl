@@ -19,7 +19,7 @@ struct SettingsView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     // ========== 系统代理 ==========
-                    SettingsSection("系统代理") {
+                    SettingsSection(L10n.proxySection) {
                         ProxyStatusCard(
                             proxyManager: proxyManager,
                             proxyHost: config.proxyHost,
@@ -39,7 +39,7 @@ struct SettingsView: View {
                     Spacer().frame(height: (geo.size.height - 280) / 2)
 
                     // ========== Mihomo ==========
-                    SettingsSection("Mihomo") {
+                    SettingsSection(L10n.mihomoSection) {
                         MihomoStatusCard(
                             isRunning: mihomoManager.isRunning,
                             pid: mihomoManager.pid,
@@ -84,10 +84,10 @@ struct MihomoConfigView: View {
             // ========== 内容区 ==========
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
-                    SettingsSection("Mihomo 配置") {
-                        LabeledPath("程序路径", text: $config.mihomoBinaryPath, allowsFiles: true) { hasChanges = true }
-                        LabeledPath("配置文件", text: $config.mihomoConfigPath, allowsFiles: true) { hasChanges = true }
-                        LabeledPath("工作目录", text: $config.mihomoHome, allowsFiles: false) { hasChanges = true }
+                    SettingsSection(L10n.mihomoConfigSection) {
+                        LabeledPath(L10n.binaryPath, text: $config.mihomoBinaryPath, allowsFiles: true) { hasChanges = true }
+                        LabeledPath(L10n.configPath, text: $config.mihomoConfigPath, allowsFiles: true) { hasChanges = true }
+                        LabeledPath(L10n.workingDir, text: $config.mihomoHome, allowsFiles: false) { hasChanges = true }
                     }
                 }
                 .padding(.horizontal, 16)
@@ -106,7 +106,7 @@ struct MihomoConfigView: View {
                 }
                 Spacer()
                 Button(action: handleSave) {
-                    Text("保存设置")
+                    Text(L10n.saveSettings)
                         .frame(width: 100)
                 }
                 .buttonStyle(.borderedProminent)
@@ -128,7 +128,7 @@ struct MihomoConfigView: View {
         config.save()
         hasChanges = false
         saveSuccess = true
-        saveMessage = "设置已保存"
+        saveMessage = L10n.settingsSaved
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
             if saveSuccess {
@@ -148,16 +148,16 @@ struct AboutMenuContent: View {
 
             Text("Mihomo Control")
                 .font(.headline)
-            Text("版本 1.0.0")
+            Text("\(L10n.version) 1.0.0")
                 .font(.caption)
                 .foregroundColor(.secondary)
 
             Divider()
 
             VStack(alignment: .leading, spacing: 6) {
-                Text("1. 安装 mihomo：`brew install mihomo`")
-                Text("2. 配置文件位于 `/usr/local/etc/mihomo/config.yaml`")
-                Text("3. 启动本应用 — 自动启动 mihomo 并开启代理")
+                Text(L10n.step1)
+                Text(L10n.step2)
+                Text(L10n.step3)
             }
             .font(.system(size: 11))
             .foregroundColor(.secondary)
@@ -191,7 +191,7 @@ struct ProxyStatusCard: View {
             }
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(proxyManager.isEnabled ? "代理中" : "未代理")
+                Text(proxyManager.isEnabled ? L10n.proxyOn : L10n.proxyOff)
                     .font(.headline)
                     .foregroundColor(proxyManager.isEnabled ? .green : .red)
                 if proxyManager.isEnabled {
@@ -205,14 +205,14 @@ struct ProxyStatusCard: View {
 
             HStack(spacing: 8) {
                 Button(action: onEnable) {
-                    Text("启用")
+                    Text(L10n.enable)
                         .frame(maxWidth: 60)
                 }
                 .buttonStyle(.borderedProminent)
                 .disabled(proxyManager.isEnabled)
 
                 Button(action: onDisable) {
-                    Text("停用")
+                    Text(L10n.disable)
                         .frame(maxWidth: 60)
                 }
                 .buttonStyle(.bordered)
@@ -249,7 +249,7 @@ struct MihomoStatusCard: View {
             }
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(isRunning ? "运行中" : "已停止")
+                Text(isRunning ? L10n.running : L10n.stopped)
                     .font(.headline)
                     .foregroundColor(isRunning ? .green : .red)
                 if isRunning {
@@ -264,25 +264,25 @@ struct MihomoStatusCard: View {
             HStack(spacing: 8) {
                 if isRunning {
                     Button(action: onRestart) {
-                        Text("重启")
+                        Text(L10n.restart)
                             .frame(maxWidth: 60)
                     }
                     .buttonStyle(.bordered)
 
                     Button(action: onStop) {
-                        Text("停止")
+                        Text(L10n.stop)
                             .frame(maxWidth: 60)
                     }
                     .buttonStyle(.bordered)
                 } else {
                     Button(action: onStart) {
-                        Text("启动")
+                        Text(L10n.start)
                             .frame(maxWidth: 60)
                     }
                     .buttonStyle(.borderedProminent)
 
                     Button(action: onStop) {
-                        Text("停止")
+                        Text(L10n.stop)
                             .frame(maxWidth: 60)
                     }
                     .buttonStyle(.bordered)
@@ -387,7 +387,7 @@ struct LabeledPath: View {
                 .textFieldStyle(.roundedBorder)
                 .lineLimit(1)
                 .onChange(of: text) { onChange?() }
-            Button("选择") {
+            Button(L10n.select) {
                 let panel = NSOpenPanel()
                 panel.allowsMultipleSelection = false
                 if allowsFiles {

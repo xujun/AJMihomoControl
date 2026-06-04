@@ -74,21 +74,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func updateIcon() {
         guard let customButton = customButton else { return }
         if proxyManager.isEnabled {
-            let image = NSImage(systemSymbolName: "network", accessibilityDescription: "Mihomo Control")
+            let image = NSImage(systemSymbolName: "network", accessibilityDescription: nil)
             image?.isTemplate = true
             customButton.setImage(image)
-            customButton.setToolTip("Mihomo Control - 代理已开启")
+            customButton.setToolTip(L10n.proxyOnTip)
         } else {
-            let image = NSImage(systemSymbolName: "network.slash", accessibilityDescription: "Mihomo Control")
+            let image = NSImage(systemSymbolName: "network.slash", accessibilityDescription: nil)
             image?.isTemplate = true
             customButton.setImage(image)
-            customButton.setToolTip("Mihomo Control - 代理未开启")
+            customButton.setToolTip(L10n.proxyOffTip)
         }
     }
 
     // MARK: - Menu
 
-    // 创建透明占位图，用于清除系统自动添加的图标
     private func clearMenuItemIcon(_ item: NSMenuItem) {
         let transparentImage = NSImage(size: NSSize(width: 1, height: 1))
         transparentImage.lockFocus()
@@ -102,7 +101,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let menu = NSMenu()
 
         // Status header
-        let statusItem = NSMenuItem(title: "Mihomo Control", action: nil, keyEquivalent: "")
+        let statusItem = NSMenuItem(title: L10n.appTitle, action: nil, keyEquivalent: "")
         statusItem.isEnabled = false
         clearMenuItemIcon(statusItem)
         menu.addItem(statusItem)
@@ -110,7 +109,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(NSMenuItem.separator())
 
         // Toggle proxy
-        let toggleTitle = proxyManager.isEnabled ? "关闭系统代理" : "开启系统代理"
+        let toggleTitle = proxyManager.isEnabled ? L10n.closeProxy : L10n.openProxy
         let toggleItem = NSMenuItem(title: toggleTitle, action: #selector(toggleProxy), keyEquivalent: "")
         toggleItem.target = self
         clearMenuItemIcon(toggleItem)
@@ -119,24 +118,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(NSMenuItem.separator())
 
         // Mihomo status
-        let mihomoStatusText = mihomoManager.isRunning ? "Mihomo 运行中" : "Mihomo 已停止"
+        let mihomoStatusText = mihomoManager.isRunning ? L10n.mihomoRunning : L10n.mihomoStopped
         let mihomoStatusItem = NSMenuItem(title: mihomoStatusText, action: nil, keyEquivalent: "")
         mihomoStatusItem.isEnabled = false
         clearMenuItemIcon(mihomoStatusItem)
         menu.addItem(mihomoStatusItem)
 
         if mihomoManager.isRunning {
-            let restartItem = NSMenuItem(title: "重启 Mihomo", action: #selector(restartMihomo), keyEquivalent: "")
+            let restartItem = NSMenuItem(title: L10n.restartMihomo, action: #selector(restartMihomo), keyEquivalent: "")
             restartItem.target = self
             clearMenuItemIcon(restartItem)
             menu.addItem(restartItem)
 
-            let stopItem = NSMenuItem(title: "停止 Mihomo", action: #selector(stopMihomo), keyEquivalent: "")
+            let stopItem = NSMenuItem(title: L10n.stopMihomo, action: #selector(stopMihomo), keyEquivalent: "")
             stopItem.target = self
             clearMenuItemIcon(stopItem)
             menu.addItem(stopItem)
         } else {
-            let startItem = NSMenuItem(title: "启动 Mihomo", action: #selector(startMihomo), keyEquivalent: "")
+            let startItem = NSMenuItem(title: L10n.startMihomo, action: #selector(startMihomo), keyEquivalent: "")
             startItem.target = self
             clearMenuItemIcon(startItem)
             menu.addItem(startItem)
@@ -145,27 +144,45 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(NSMenuItem.separator())
 
         // Mihomo 配置
-        let configItem = NSMenuItem(title: "Mihomo配置", action: #selector(openMihomoConfig), keyEquivalent: "")
+        let configItem = NSMenuItem(title: L10n.mihomoConfig, action: #selector(openMihomoConfig), keyEquivalent: "")
         configItem.target = self
         clearMenuItemIcon(configItem)
         menu.addItem(configItem)
 
         // 打开配置目录
-        let folderItem = NSMenuItem(title: "打开配置目录", action: #selector(openConfigFolder), keyEquivalent: "")
+        let folderItem = NSMenuItem(title: L10n.openConfigFolder, action: #selector(openConfigFolder), keyEquivalent: "")
         folderItem.target = self
         clearMenuItemIcon(folderItem)
         menu.addItem(folderItem)
 
         // 打开控制面板
-        let panelItem = NSMenuItem(title: "打开控制面板", action: #selector(openSettings), keyEquivalent: ",")
+        let panelItem = NSMenuItem(title: L10n.openControlPanel, action: #selector(openSettings), keyEquivalent: ",")
         panelItem.target = self
         clearMenuItemIcon(panelItem)
         menu.addItem(panelItem)
 
         menu.addItem(NSMenuItem.separator())
 
+        // Language submenu
+        let langMenu = NSMenu()
+        for lang in AppLanguage.allCases {
+            let isSelected = lang == AppLanguage.current
+            let title = "\(isSelected ? "✓ " : "  ")\(lang.displayName)"
+            let langItem = NSMenuItem(title: title, action: #selector(changeLanguage(_:)), keyEquivalent: "")
+            langItem.target = self
+            langItem.representedObject = lang.rawValue
+            langItem.image = nil
+            langMenu.addItem(langItem)
+        }
+        let langItem = NSMenuItem(title: L10n.language, action: nil, keyEquivalent: "")
+        langItem.submenu = langMenu
+        langItem.image = nil
+        menu.addItem(langItem)
+
+        menu.addItem(NSMenuItem.separator())
+
         // About
-        let aboutItem = NSMenuItem(title: "关于", action: #selector(openAbout), keyEquivalent: "")
+        let aboutItem = NSMenuItem(title: L10n.about, action: #selector(openAbout), keyEquivalent: "")
         aboutItem.target = self
         clearMenuItemIcon(aboutItem)
         menu.addItem(aboutItem)
@@ -173,7 +190,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(NSMenuItem.separator())
 
         // Quit
-        let quitItem = NSMenuItem(title: "退出", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        let quitItem = NSMenuItem(title: L10n.quit, action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         clearMenuItemIcon(quitItem)
         menu.addItem(quitItem)
 
@@ -195,7 +212,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             backing: .buffered,
             defer: false
         )
-        window.title = "控制面板"
+        window.title = L10n.controlPanelTitle
         window.center()
         window.isReleasedWhenClosed = false
         window.isMovableByWindowBackground = true
@@ -228,7 +245,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             backing: .buffered,
             defer: false
         )
-        window.title = "Mihomo配置"
+        window.title = L10n.mihomoConfigTitle
         window.center()
         window.isReleasedWhenClosed = false
         window.isMovableByWindowBackground = true
@@ -327,6 +344,23 @@ extension AppDelegate {
 
     @objc func openAbout() {
         openAboutWindow()
+    }
+
+    @objc func changeLanguage(_ sender: NSMenuItem) {
+        guard let raw = sender.representedObject as? String,
+              let lang = AppLanguage(rawValue: raw) else { return }
+        AppLanguage.set(lang)
+
+        // Close all windows so they reopen with new language
+        controlWindow?.close()
+        controlWindow = nil
+        mihomoConfigWindow?.close()
+        mihomoConfigWindow = nil
+        aboutWindow?.close()
+        aboutWindow = nil
+
+        // Reopen control panel
+        openSettingsWindow()
     }
 }
 
