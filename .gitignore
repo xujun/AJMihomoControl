@@ -1,0 +1,16 @@
+# Build products
+*.app/
+*.dmg
+*.zip
+*.icns
+.DS_Store
+
+# Xcode / Swift Package Manager
+.build/
+.swiftpm/
+
+# Release directory
+release/
+
+# User settings
+.claude/
