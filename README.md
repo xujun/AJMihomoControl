@@ -35,7 +35,7 @@ brew install mihomo
 **2. 从源码构建**
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/AJMihomoControl.git
+git clone https://github.com/xujun/AJMihomoControl.git
 cd AJMihomoControl
 make build
 ```
@@ -146,7 +146,7 @@ brew install mihomo
 **2. Build from Source**
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/AJMihomoControl.git
+git clone https://github.com/xujun/AJMihomoControl.git
 cd AJMihomoControl
 make build
 ```
