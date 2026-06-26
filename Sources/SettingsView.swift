@@ -15,6 +15,7 @@ import Cocoa
 struct SettingsView: View {
     @ObservedObject var proxyManager: ProxyManager
     @ObservedObject var mihomoManager: MihomoManager
+    @ObservedObject var mihomoAPI: MihomoAPI
     @State private var config = AppConfig.load()
 
     var body: some View {
@@ -39,8 +40,6 @@ struct SettingsView: View {
                         )
                     }
 
-                    Spacer().frame(height: (geo.size.height - 280) / 2)
-
                     // ========== Mihomo ==========
                     SettingsSection(L10n.mihomoSection) {
                         MihomoStatusCard(
@@ -63,13 +62,18 @@ struct SettingsView: View {
                             }
                         )
                     }
+
+                    // ========== 代理服务器 ==========
+                    SettingsSection(L10n.proxySwitcherSection) {
+                        ProxySwitcherView(mihomoAPI: mihomoAPI)
+                    }
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 12)
                 .padding(.bottom, 2)
             }
         }
-        .frame(minHeight: 260)
+        .frame(minHeight: 400)
     }
 }
 
@@ -91,6 +95,7 @@ struct MihomoConfigView: View {
                         LabeledPath(L10n.binaryPath, text: $config.mihomoBinaryPath, allowsFiles: true) { hasChanges = true }
                         LabeledPath(L10n.configPath, text: $config.mihomoConfigPath, allowsFiles: true) { hasChanges = true }
                         LabeledPath(L10n.workingDir, text: $config.mihomoHome, allowsFiles: false) { hasChanges = true }
+                        LabeledField(L10n.apiSecretLabel, .text($config.apiSecret)) { hasChanges = true }
                     }
                 }
                 .padding(.horizontal, 16)
@@ -151,7 +156,7 @@ struct AboutMenuContent: View {
 
             Text("Mihomo Control")
                 .font(.headline)
-            Text("\(L10n.version) 1.0.0")
+            Text("\(L10n.version) \(appVersion)")
                 .font(.caption)
                 .foregroundColor(.secondary)
 

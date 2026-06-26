@@ -8,6 +8,9 @@
 
 import Foundation
 
+/// 应用版本号
+let appVersion = "1.1.0"
+
 /// 应用配置，通过 UserDefaults 持久化
 struct AppConfig: Codable {
     var mihomoBinaryPath: String
@@ -17,6 +20,7 @@ struct AppConfig: Codable {
     var proxyHost: String
     var proxyPort: Int
     var dashboardPort: Int
+    var apiSecret: String
 
     /// 自动检测 mihomo 安装路径
     static func detectMihomoPaths() -> (binary: String, config: String, home: String) {
@@ -65,7 +69,8 @@ struct AppConfig: Codable {
             networkAdapter: "Wi-Fi",
             proxyHost: "127.0.0.1",
             proxyPort: 10808,
-            dashboardPort: 9090
+            dashboardPort: 9090,
+            apiSecret: ""
         )
     }()
 
@@ -74,6 +79,39 @@ struct AppConfig: Codable {
             return .default
         }
         return (try? JSONDecoder().decode(AppConfig.self, from: data)) ?? .default
+    }
+
+    /// 向后兼容：旧数据没有 apiSecret 字段时自动填充默认值
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        mihomoBinaryPath = try container.decode(String.self, forKey: .mihomoBinaryPath)
+        mihomoConfigPath = try container.decode(String.self, forKey: .mihomoConfigPath)
+        mihomoHome = try container.decode(String.self, forKey: .mihomoHome)
+        networkAdapter = try container.decode(String.self, forKey: .networkAdapter)
+        proxyHost = try container.decode(String.self, forKey: .proxyHost)
+        proxyPort = try container.decode(Int.self, forKey: .proxyPort)
+        dashboardPort = try container.decode(Int.self, forKey: .dashboardPort)
+        apiSecret = try container.decodeIfPresent(String.self, forKey: .apiSecret) ?? ""
+    }
+
+    /// 成员初始化器（默认 apiSecret 为空）
+    init(mihomoBinaryPath: String, mihomoConfigPath: String, mihomoHome: String,
+         networkAdapter: String, proxyHost: String, proxyPort: Int,
+         dashboardPort: Int, apiSecret: String = "") {
+        self.mihomoBinaryPath = mihomoBinaryPath
+        self.mihomoConfigPath = mihomoConfigPath
+        self.mihomoHome = mihomoHome
+        self.networkAdapter = networkAdapter
+        self.proxyHost = proxyHost
+        self.proxyPort = proxyPort
+        self.dashboardPort = dashboardPort
+        self.apiSecret = apiSecret
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case mihomoBinaryPath, mihomoConfigPath, mihomoHome
+        case networkAdapter, proxyHost, proxyPort, dashboardPort
+        case apiSecret
     }
 
     func save() {

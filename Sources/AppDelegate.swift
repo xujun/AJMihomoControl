@@ -22,6 +22,7 @@ struct MihomoControlApp: App {
 class AppDelegate: NSObject, NSApplicationDelegate {
     let proxyManager = ProxyManager()
     let mihomoManager = MihomoManager()
+    let mihomoAPI = MihomoAPI()
     private var statusItem: NSStatusItem!
     private var controlWindow: NSWindow?
     private var mihomoConfigWindow: NSWindow?
@@ -52,6 +53,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
             .store(in: &cancellables)
 
+        // Observe mihomo running state to fetch/clear proxy list
+        mihomoManager.$isRunning
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] running in
+                if running {
+                    // 延迟 1.5s 等待 mihomo 初始化 API
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+                        self?.mihomoAPI.fetchProxies()
+                    }
+                } else {
+                    self?.mihomoAPI.reset()
+                }
+            }
+            .store(in: &cancellables)
+
+        // 启动时检查 mihomo 是否已在运行
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            if self?.mihomoManager.isRunning == true {
+                self?.mihomoAPI.fetchProxies()
+            }
+        }
+
         // 启动 mihomo（如果配置文件存在）
         let config = AppConfig.load()
         if FileManager.default.fileExists(atPath: config.resolvedMihomoConfigPath) {
@@ -59,6 +82,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
                 if self?.mihomoManager.isRunning == true {
                     self?.proxyManager.enable()
+                    // 启动后延迟获取代理列表
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+                        self?.mihomoAPI.fetchProxies()
+                    }
                 }
             }
         }
@@ -141,6 +168,38 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             menu.addItem(startItem)
         }
 
+        // 代理服务器子菜单
+        menu.addItem(NSMenuItem.separator())
+
+        if mihomoAPI.proxyServers.isEmpty {
+            let noServerItem = NSMenuItem(title: "\(L10n.proxySwitcherSection) — \(L10n.noProxyGroups)", action: nil, keyEquivalent: "")
+            noServerItem.isEnabled = false
+            clearMenuItemIcon(noServerItem)
+            menu.addItem(noServerItem)
+        } else {
+            // 创建代理服务器子菜单
+            let proxySubmenu = NSMenu()
+            let proxyMenuItem = NSMenuItem(title: L10n.proxySwitcherSection, action: nil, keyEquivalent: "")
+            clearMenuItemIcon(proxyMenuItem)
+
+            for server in mihomoAPI.proxyServers {
+                let serverItem = NSMenuItem(title: server.name, action: #selector(switchProxyServer(_:)), keyEquivalent: "")
+                serverItem.target = self
+                serverItem.representedObject = server.name
+                clearMenuItemIcon(serverItem)
+
+                // 标记当前选中的代理
+                if server.name == mihomoAPI.currentProxy {
+                    serverItem.state = NSControl.StateValue.on
+                }
+
+                proxySubmenu.addItem(serverItem)
+            }
+
+            proxyMenuItem.submenu = proxySubmenu
+            menu.addItem(proxyMenuItem)
+        }
+
         menu.addItem(NSMenuItem.separator())
 
         // Mihomo 配置
@@ -198,7 +257,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 620, height: 340),
+            contentRect: NSRect(x: 0, y: 0, width: 620, height: 500),
             styleMask: [.titled, .closable, .miniaturizable, .resizable],
             backing: .buffered,
             defer: false
@@ -207,11 +266,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.center()
         window.isReleasedWhenClosed = false
         window.isMovableByWindowBackground = true
-        window.minSize = NSSize(width: 580, height: 340)
+        window.minSize = NSSize(width: 580, height: 420)
 
         let rootView = SettingsView(
             proxyManager: proxyManager,
-            mihomoManager: mihomoManager
+            mihomoManager: mihomoManager,
+            mihomoAPI: mihomoAPI
         )
 
         let hostingView = NSHostingView(rootView: rootView)
@@ -308,6 +368,11 @@ extension AppDelegate {
 
     @objc func restartMihomo() {
         mihomoManager.restart()
+    }
+
+    @objc func switchProxyServer(_ sender: NSMenuItem) {
+        guard let proxyName = sender.representedObject as? String else { return }
+        mihomoAPI.switchProxy(name: proxyName)
     }
 
     @objc func toggleInterface(_ sender: NSMenuItem) {

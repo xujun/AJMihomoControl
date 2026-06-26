@@ -2,7 +2,6 @@
 *.app/
 *.dmg
 *.zip
-*.icns
 .DS_Store
 
 # Xcode / Swift Package Manager

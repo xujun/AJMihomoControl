@@ -104,4 +104,20 @@ struct L10n {
     // 提示
     static let proxyOnTip = isZh ? "Mihomo Control - 代理已开启" : "Mihomo Control - Proxy ON"
     static let proxyOffTip = isZh ? "Mihomo Control - 代理未开启" : "Mihomo Control - Proxy OFF"
+
+    // 代理切换
+    static let proxySwitcherSection = isZh ? "代理服务器" : "Proxy Servers"
+    static let refreshProxyList = isZh ? "刷新列表" : "Refresh"
+    static let testAllDelays = isZh ? "测试延迟" : "Test Delays"
+    static let noProxyGroups = isZh ? "无可用服务器" : "No available servers"
+    static let apiUnreachable = isZh ? "无法连接到 mihomo API" : "Cannot connect to mihomo API"
+    static let retry = isZh ? "重试" : "Retry"
+    static let switching = isZh ? "切换中..." : "Switching..."
+    static let apiSecretLabel = isZh ? "API 密钥" : "API Secret"
+    static let proxyTypeSelect = isZh ? "选择" : "Select"
+    static let proxyTypeFallback = isZh ? "回退" : "Fallback"
+    static let proxyTypeURLTest = isZh ? "自动测速" : "URLTest"
+    static let delayMs = isZh ? "毫秒" : "ms"
+    static let delayTimeout = isZh ? "超时" : "Timeout"
+    static let noDelay = isZh ? "未测试" : "Not tested"
 }
