@@ -33,7 +33,7 @@ release: build
 # 创建 DMG 安装镜像（拖拽安装）
 dmg: release
 	@echo "==> 正在创建 DMG 安装镜像..."
-	@rm -f "$(APP_NAME)-v1.0.0.dmg"
+	@rm -f "$(APP_NAME)-v1.1.0.dmg"
 	@rm -f "$(APP_NAME)-tmp.dmg"
 	@rm -rf /tmp/$(APP_NAME)-dmg
 	@mkdir -p /tmp/$(APP_NAME)-dmg
@@ -69,11 +69,11 @@ dmg: release
 	hdiutil detach "$$MOUNT" 2>/dev/null; \
 	sleep 1; \
 	hdiutil convert "$(APP_NAME)-tmp.dmg" -format UDZO -imagekey zlib-level=9 \
-		-o "$(APP_NAME)-v1.0.0.dmg" 2>/dev/null; \
+		-o "$(APP_NAME)-v1.1.0.dmg" 2>/dev/null; \
 	rm -f "$(APP_NAME)-tmp.dmg"; \
 	rm -rf /tmp/$(APP_NAME)-dmg; \
-	ls -lh "$(APP_NAME)-v1.0.0.dmg" 2>/dev/null; \
-	echo "==> DMG 安装镜像已创建：$(APP_NAME)-v1.0.0.dmg"
+	ls -lh "$(APP_NAME)-v1.1.0.dmg" 2>/dev/null; \
+	echo "==> DMG 安装镜像已创建：$(APP_NAME)-v1.1.0.dmg"
 
 clean:
 	rm -rf "$(APP_BUNDLE)" "$(RELEASE_DIR)"
