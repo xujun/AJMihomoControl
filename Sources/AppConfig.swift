@@ -9,7 +9,7 @@
 import Foundation
 
 /// 应用版本号
-let appVersion = "1.1.0"
+let appVersion = "1.1.1"
 
 /// 应用配置，通过 UserDefaults 持久化
 struct AppConfig: Codable {

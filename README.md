@@ -8,7 +8,7 @@
 
 ## 🇨🇳 中文
 
-**当前版本：1.1.0**
+**当前版本：1.1.1**
 
 macOS 菜单栏应用，直接控制系统代理设置并与 mihomo 代理核心集成。
 
@@ -142,7 +142,7 @@ AJMihomoControl/
 
 ## 🇺🇸 English
 
-**Current Version: 1.1.0**
+**Current Version: 1.1.1**
 
 macOS menu bar app for controlling system proxy settings with mihomo.
 

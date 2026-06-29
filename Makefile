@@ -14,9 +14,13 @@ build:
 	@mkdir -p "$(APP_BUNDLE)/Contents/Resources"
 	@cp Info.plist "$(APP_BUNDLE)/Contents/Info.plist"
 	@cp AppIcon.icns "$(APP_BUNDLE)/Contents/Resources/AppIcon.icns"
-	@swiftc -O -o "$(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)" \
-		Sources/*.swift \
-		-framework Cocoa -framework SwiftUI
+	@echo "  编译 x86_64..."
+	@swiftc -O -target x86_64-apple-macosx14.0 -o x86_64_bin Sources/*.swift -framework Cocoa -framework SwiftUI
+	@echo "  编译 arm64..."
+	@swiftc -O -target arm64-apple-macosx14.0 -o arm64_bin Sources/*.swift -framework Cocoa -framework SwiftUI
+	@echo "  合并 Universal Binary..."
+	@lipo -create -output "$(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)" x86_64_bin arm64_bin
+	@rm -f x86_64_bin arm64_bin
 	@chmod +x "$(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)"
 	@codesign --force --deep --sign - "$(APP_BUNDLE)" 2>/dev/null || true
 	@echo "==> 完成：$(APP_BUNDLE)"
@@ -33,47 +37,15 @@ release: build
 # 创建 DMG 安装镜像（拖拽安装）
 dmg: release
 	@echo "==> 正在创建 DMG 安装镜像..."
-	@rm -f "$(APP_NAME)-v1.1.0.dmg"
-	@rm -f "$(APP_NAME)-tmp.dmg"
-	@rm -rf /tmp/$(APP_NAME)-dmg
-	@mkdir -p /tmp/$(APP_NAME)-dmg
-	@cp -R "$(APP_BUNDLE)" /tmp/$(APP_NAME)-dmg/
-	@ln -s /Applications /tmp/$(APP_NAME)-dmg/Applications
-	@hdiutil create -srcfolder /tmp/$(APP_NAME)-dmg -volname "$(APP_NAME) Installer" \
-		-fs HFS+ -format UDRW -size 50m "$(APP_NAME)-tmp.dmg" 2>/dev/null
-	@MOUNT=$$(hdiutil attach -nobrowse "$(APP_NAME)-tmp.dmg" 2>/dev/null | grep "Apple_HFS" | awk '{print $$NF}'); \
-	echo "  挂载于 $$MOUNT"; \
-	sleep 2; \
-	osascript -e ' \
-		tell application "Finder" \
-			delay 1 \
-			set volName to "$(APP_NAME) Installer" \
-			set dmgDisk to disk volName \
-			open dmgDisk \
-			delay 1 \
-			set w to window of dmgDisk \
-			set current view of w to icon view \
-			set toolbar visible of w to false \
-			set statusbar visible of w to false \
-			set the bounds of w to {400, 100, 920, 440} \
-			set theViewOptions to the icon view options of w \
-			set arrangement of theViewOptions to not arranged \
-			set icon size of theViewOptions to 100 \
-			set position of item "$(APP_NAME).app" of w to {130, 160} \
-			set position of item "Applications" of w to {380, 160} \
-			delay 1 \
-			close w \
-		end tell \
-	' 2>/dev/null; \
-	sleep 1; \
-	hdiutil detach "$$MOUNT" 2>/dev/null; \
-	sleep 1; \
-	hdiutil convert "$(APP_NAME)-tmp.dmg" -format UDZO -imagekey zlib-level=9 \
-		-o "$(APP_NAME)-v1.1.0.dmg" 2>/dev/null; \
-	rm -f "$(APP_NAME)-tmp.dmg"; \
-	rm -rf /tmp/$(APP_NAME)-dmg; \
-	ls -lh "$(APP_NAME)-v1.1.0.dmg" 2>/dev/null; \
-	echo "==> DMG 安装镜像已创建：$(APP_NAME)-v1.1.0.dmg"
+	@rm -f MihomoControl-v1.1.1.dmg
+	@rm -rf /tmp/MihomoControl-dmg
+	@mkdir -p /tmp/MihomoControl-dmg
+	@cp -R MihomoControl.app /tmp/MihomoControl-dmg/
+	@ln -s /Applications /tmp/MihomoControl-dmg/Applications
+	@hdiutil create -volname "MihomoControl Installer" -srcfolder /tmp/MihomoControl-dmg -ov -format UDZO MihomoControl-v1.1.1.dmg
+	@rm -rf /tmp/MihomoControl-dmg
+	@ls -lh MihomoControl-v1.1.1.dmg
+	@echo "==> DMG 安装镜像已创建：MihomoControl-v1.1.1.dmg"
 
 clean:
 	rm -rf "$(APP_BUNDLE)" "$(RELEASE_DIR)"
