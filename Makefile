@@ -1,6 +1,8 @@
 APP_NAME = MihomoControl
+APP_VERSION = 1.1.1
 APP_BUNDLE = $(APP_NAME).app
 RELEASE_DIR = release
+DMG_NAME = $(APP_NAME)-v$(APP_VERSION).dmg
 
 .PHONY: all build clean install run release
 
@@ -37,15 +39,15 @@ release: build
 # 创建 DMG 安装镜像（拖拽安装）
 dmg: release
 	@echo "==> 正在创建 DMG 安装镜像..."
-	@rm -f MihomoControl-v1.1.1.dmg
+	@rm -f $(DMG_NAME)
 	@rm -rf /tmp/MihomoControl-dmg
 	@mkdir -p /tmp/MihomoControl-dmg
 	@cp -R MihomoControl.app /tmp/MihomoControl-dmg/
 	@ln -s /Applications /tmp/MihomoControl-dmg/Applications
-	@hdiutil create -volname "MihomoControl Installer" -srcfolder /tmp/MihomoControl-dmg -ov -format UDZO MihomoControl-v1.1.1.dmg
+	@hdiutil create -volname "MihomoControl Installer" -srcfolder /tmp/MihomoControl-dmg -ov -format UDZO $(DMG_NAME)
 	@rm -rf /tmp/MihomoControl-dmg
-	@ls -lh MihomoControl-v1.1.1.dmg
-	@echo "==> DMG 安装镜像已创建：MihomoControl-v1.1.1.dmg"
+	@ls -lh $(DMG_NAME)
+	@echo "==> DMG 安装镜像已创建：$(DMG_NAME)"
 
 clean:
 	rm -rf "$(APP_BUNDLE)" "$(RELEASE_DIR)"
