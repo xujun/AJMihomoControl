@@ -23,9 +23,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     let proxyManager = ProxyManager()
     let mihomoManager = MihomoManager()
     let mihomoAPI = MihomoAPI()
+    let subscriptionManager = SubscriptionManager()
+    let proxyConfig = ProxyConfigManager()
     private var statusItem: NSStatusItem!
     private var controlWindow: NSWindow?
     private var mihomoConfigWindow: NSWindow?
+    private var proxyConfigWindow: NSWindow?
     private var aboutWindow: NSWindow?
     private var customButton: ClickableStatusItem?
     private var cancellables = Set<AnyCancellable>()
@@ -86,6 +89,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
                         self?.mihomoAPI.fetchProxies()
                     }
+                }
+            }
+        }
+
+        // 旧版本订阅（proxy-providers）自动迁移为普通 proxies，与已有节点合并
+        if subscriptionManager.hasLegacyProviderConfig && !subscriptionManager.subscriptions.isEmpty {
+            subscriptionManager.apply { [weak self] outcome in
+                guard outcome.success else { return }
+                self?.proxyConfig.reload()
+                self?.mihomoManager.restart()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                    self?.proxyConfig.reload()
+                    self?.mihomoAPI.fetchProxies()
                 }
             }
         }
@@ -168,37 +184,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             menu.addItem(startItem)
         }
 
-        // 代理服务器子菜单
+        // 代理服务器（配置 + 切换 + 订阅管理）
         menu.addItem(NSMenuItem.separator())
 
-        if mihomoAPI.proxyServers.isEmpty {
-            let noServerItem = NSMenuItem(title: "\(L10n.proxySwitcherSection) — \(L10n.noProxyGroups)", action: nil, keyEquivalent: "")
-            noServerItem.isEnabled = false
-            clearMenuItemIcon(noServerItem)
-            menu.addItem(noServerItem)
-        } else {
-            // 创建代理服务器子菜单
-            let proxySubmenu = NSMenu()
-            let proxyMenuItem = NSMenuItem(title: L10n.proxySwitcherSection, action: nil, keyEquivalent: "")
-            clearMenuItemIcon(proxyMenuItem)
-
-            for server in mihomoAPI.proxyServers {
-                let serverItem = NSMenuItem(title: server.name, action: #selector(switchProxyServer(_:)), keyEquivalent: "")
-                serverItem.target = self
-                serverItem.representedObject = server.name
-                clearMenuItemIcon(serverItem)
-
-                // 标记当前选中的代理
-                if server.name == mihomoAPI.currentProxy {
-                    serverItem.state = NSControl.StateValue.on
-                }
-
-                proxySubmenu.addItem(serverItem)
-            }
-
-            proxyMenuItem.submenu = proxySubmenu
-            menu.addItem(proxyMenuItem)
-        }
+        let proxyManagerItem = NSMenuItem(title: L10n.proxySwitcherSection, action: #selector(openProxyConfig), keyEquivalent: "")
+        proxyManagerItem.target = self
+        clearMenuItemIcon(proxyManagerItem)
+        menu.addItem(proxyManagerItem)
 
         menu.addItem(NSMenuItem.separator())
 
@@ -314,6 +306,41 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         mihomoConfigWindow = window
     }
 
+    // MARK: - Proxy Config Window
+
+    func openProxyConfigWindow() {
+        if let window = proxyConfigWindow, window.isVisible {
+            window.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+            return
+        }
+
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 640, height: 560),
+            styleMask: [.titled, .closable, .miniaturizable, .resizable],
+            backing: .buffered,
+            defer: false
+        )
+        window.title = L10n.proxySwitcherSection
+        window.center()
+        window.isReleasedWhenClosed = false
+        window.isMovableByWindowBackground = true
+        window.minSize = NSSize(width: 560, height: 420)
+
+        let rootView = ProxyConfigWindowView(
+            manager: proxyConfig,
+            subscriptionManager: subscriptionManager,
+            mihomoManager: mihomoManager,
+            mihomoAPI: mihomoAPI
+        )
+
+        let hostingView = NSHostingView(rootView: rootView)
+        window.contentView = hostingView
+        window.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+        proxyConfigWindow = window
+    }
+
     // MARK: - About Window
 
     func openAboutWindow() {
@@ -370,11 +397,6 @@ extension AppDelegate {
         mihomoManager.restart()
     }
 
-    @objc func switchProxyServer(_ sender: NSMenuItem) {
-        guard let proxyName = sender.representedObject as? String else { return }
-        mihomoAPI.switchProxy(name: proxyName)
-    }
-
     @objc func toggleInterface(_ sender: NSMenuItem) {
         guard let interface = sender.representedObject as? String else { return }
         if proxyManager.isInterfaceEnabled(interface) {
@@ -396,6 +418,10 @@ extension AppDelegate {
 
     @objc func openMihomoConfig() {
         openMihomoConfigWindow()
+    }
+
+    @objc func openProxyConfig() {
+        openProxyConfigWindow()
     }
 
     @objc func openAbout() {

@@ -113,40 +113,9 @@ class MihomoAPI: ObservableObject {
     }
 
     private func authHeaders() -> [String: String] {
-        let config = AppConfig.load()
-        var secret = config.apiSecret
-
-        // 如果没有手动配置 secret，尝试从 mihomo 配置文件中读取
-        if secret.isEmpty {
-            secret = Self.readSecretFromConfig(config.resolvedMihomoConfigPath)
-        }
-
+        let secret = AppConfig.load().resolvedAPISecret
         guard !secret.isEmpty else { return [:] }
         return ["Authorization": "Bearer \(secret)"]
-    }
-
-    /// 从 mihomo 配置文件中读取 secret
-    private static func readSecretFromConfig(_ configPath: String) -> String {
-        guard let content = try? String(contentsOfFile: configPath, encoding: .utf8) else {
-            return ""
-        }
-
-        // 简单的 YAML 解析：查找 "secret:" 或 "secret :" 行
-        for line in content.components(separatedBy: .newlines) {
-            let trimmed = line.trimmingCharacters(in: .whitespaces)
-            // 匹配 "secret:" 或 "secret :" 开头的行
-            if trimmed.hasPrefix("secret:") || trimmed.hasPrefix("secret :") {
-                // 提取冒号后的值
-                if let colonIndex = trimmed.firstIndex(of: ":") {
-                    let value = trimmed[trimmed.index(after: colonIndex)...]
-                        .trimmingCharacters(in: .whitespaces)
-                        // 移除引号
-                        .trimmingCharacters(in: CharacterSet(charactersIn: "\"'"))
-                    return value
-                }
-            }
-        }
-        return ""
     }
 
     // MARK: - 获取代理列表

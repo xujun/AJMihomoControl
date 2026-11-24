@@ -9,7 +9,7 @@
 import Foundation
 
 /// 应用版本号
-let appVersion = "1.1.1"
+let appVersion = "1.2.0"
 
 /// 应用配置，通过 UserDefaults 持久化
 struct AppConfig: Codable {
@@ -130,5 +130,32 @@ struct AppConfig: Codable {
 
     var resolvedMihomoBinaryPath: String {
         NSString(string: mihomoBinaryPath).expandingTildeInPath
+    }
+
+    /// API 密钥：优先使用手动配置，否则从 mihomo 配置文件中读取
+    var resolvedAPISecret: String {
+        if !apiSecret.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return apiSecret
+        }
+        return AppConfig.readSecret(fromConfigPath: resolvedMihomoConfigPath)
+    }
+
+    /// 从 mihomo 配置文件中读取 secret
+    static func readSecret(fromConfigPath path: String) -> String {
+        guard let content = try? String(contentsOfFile: path, encoding: .utf8) else {
+            return ""
+        }
+
+        for line in content.components(separatedBy: .newlines) {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            guard trimmed.hasPrefix("secret:") || trimmed.hasPrefix("secret :") else { continue }
+
+            if let colonIndex = trimmed.firstIndex(of: ":") {
+                return trimmed[trimmed.index(after: colonIndex)...]
+                    .trimmingCharacters(in: .whitespaces)
+                    .trimmingCharacters(in: CharacterSet(charactersIn: "\"'"))
+            }
+        }
+        return ""
     }
 }

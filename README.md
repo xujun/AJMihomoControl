@@ -8,7 +8,7 @@
 
 ## 🇨🇳 中文
 
-**当前版本：1.1.1**
+**当前版本：1.2.0**
 
 macOS 菜单栏应用，直接控制系统代理设置并与 mihomo 代理核心集成。
 
@@ -17,8 +17,10 @@ macOS 菜单栏应用，直接控制系统代理设置并与 mihomo 代理核心
 - 🌐 **系统代理控制** — 一键开关 macOS 系统代理（HTTP/HTTPS/SOCKS）
 - 🔌 **mihomo 集成** — 自动启动 mihomo，管理进程生命周期
 - 🖥️ **代理服务器切换** — 通过 mihomo API 快速切换代理节点，支持延迟测试
+- 🔗 **自定义订阅** — 订阅节点直接导入 proxies，与普通节点一样可切换、修改、删除
+- 🛠️ **代理服务器管理** — 右键菜单“代理服务器”中统一完成切换、增删改和订阅导入
 - 📊 **状态栏图标** — 代理开启/关闭时实时切换图标
-- 📋 **右键菜单** — 快速切换代理服务器，无需打开控制面板
+- 📋 **右键菜单** — 快速打开代理服务器管理窗口，无需打开控制面板
 - ⚙️ **配置窗口** — 管理 mihomo 二进制路径、配置文件和工作目录
 
 ### 环境要求
@@ -85,6 +87,11 @@ AJMihomoControl/
     ├── MihomoAPI.swift        # mihomo RESTful API 客户端
     ├── SettingsView.swift     # SwiftUI 视图（控制面板 + 配置）
     ├── ProxySwitcherView.swift # 代理服务器切换界面
+    ├── Subscription.swift     # 订阅拉取、节点导入与清理
+    ├── SubscriptionView.swift # 订阅设置界面
+    ├── ProxyConfig.swift      # 代理服务器增删改、配置写入
+    ├── ProxyConfigView.swift  # 代理服务器配置界面
+    ├── SubscriptionConverter.swift # 订阅内容转换为代理 YAML
     └── L10n.swift             # 本地化字符串（中/英）
 ```
 
@@ -92,7 +99,7 @@ AJMihomoControl/
 
 **菜单栏**
 - **左键点击** 状态栏图标 → 打开控制面板
-- **右键点击** 状态栏图标 → 快捷操作菜单（含代理服务器切换）
+- **右键点击** 状态栏图标 → 快捷操作菜单（含“代理服务器”管理入口）
 
 ![Menu](images/memu.png)
 
@@ -106,12 +113,15 @@ AJMihomoControl/
 
 ![Control Panel](images/control.png)
 
-**代理服务器切换**
-- 自动从 mihomo 获取可用代理节点
-- 自动读取 mihomo 配置中的 API 密钥
-- 点击节点即可切换当前代理
-- 支持一键测试所有节点延迟
-- 右键菜单可快速切换（无需打开控制面板）
+**代理服务器切换 / 配置 / 订阅**
+- 右键菜单 → “代理服务器”打开统一管理窗口
+- 点击节点即可切换当前代理；支持一键测试延迟（控制面板中）
+- 在窗口内添加、修改、删除 `config.yaml` 中 `proxies` 的节点，编辑时直接使用 mihomo 代理 YAML
+- 新增节点会自动加入 `PROXY` 策略组；改名/删除会同步更新策略组引用
+- 同一窗口内可添加订阅链接并点击“添加并应用”（支持 Base64 / URI / Clash YAML）
+- 订阅节点会直接导入到 `proxies`，导入后可像普通节点一样切换、修改、删除
+- 保存/导入后重启 mihomo，原配置备份为 `config.yaml.ajbak`
+- 订阅链接保存在 `~/Library/Application Support/AJMihomoControl/subscriptions.json`，不会写入源码
 
 **Mihomo 配置**
 - 配置二进制路径（自动检测 Homebrew 安装）
@@ -136,13 +146,19 @@ AJMihomoControl/
 - 通过 API 切换当前选中的代理
 - 测试代理延迟（`GET /proxies/:name/delay`）
 
+**自定义订阅** 采用“导入为普通节点”的方式：
+- 应用下载订阅并解析 Base64 / URI / Clash YAML，将节点写入 `proxies`
+- 同名节点不会重复导入，也不会覆盖已手动修改的节点
+- 导入后与普通节点完全一致，可在同一窗口内切换、修改、删除
+- 自动清理旧版本写入的 `proxy-providers` 与 `use` 条目
+
 ---
 
 <a id="english"></a>
 
 ## 🇺🇸 English
 
-**Current Version: 1.1.1**
+**Current Version: 1.2.0**
 
 macOS menu bar app for controlling system proxy settings with mihomo.
 
@@ -151,8 +167,10 @@ macOS menu bar app for controlling system proxy settings with mihomo.
 - 🌐 **System Proxy Control** — One-click toggle for macOS system proxy (HTTP/HTTPS/SOCKS)
 - 🔌 **mihomo Integration** — Auto-start mihomo, manage process lifecycle
 - 🖥️ **Proxy Server Switching** — Quickly switch proxy nodes via mihomo API, with latency testing
+- 🔗 **Custom Subscriptions** — Subscription nodes are imported into proxies and become switchable, editable and deletable like regular nodes
+- 🛠️ **Proxy Server Management** — One right-click “Proxy Servers” window for switching, add/edit/delete and subscription import
 - 📊 **Status Bar Indicator** — Real-time icon change when proxy is enabled/disabled
-- 📋 **Right-click Menu** — Quick proxy server switching without opening the control panel
+- 📋 **Right-click Menu** — Open the proxy server management window without opening the control panel
 - ⚙️ **Configuration Window** — Manage mihomo binary, config, and working directory paths
 
 ### Requirements
@@ -219,6 +237,11 @@ AJMihomoControl/
     ├── MihomoAPI.swift        # mihomo RESTful API client
     ├── SettingsView.swift     # SwiftUI views for control panel & config
     ├── ProxySwitcherView.swift # Proxy server switching interface
+    ├── Subscription.swift     # Subscription fetching, node import & cleanup
+    ├── SubscriptionView.swift # Subscription settings interface
+    ├── ProxyConfig.swift      # Proxy server CRUD & config writing
+    ├── ProxyConfigView.swift  # Proxy server config interface
+    ├── SubscriptionConverter.swift # Subscription content to proxy YAML
     └── L10n.swift             # Localization strings (Chinese/English)
 ```
 
@@ -226,7 +249,7 @@ AJMihomoControl/
 
 **Menu Bar**
 - **Left-click** status bar icon → Open Control Panel
-- **Right-click** status bar icon → Quick actions menu (with proxy server switching)
+- **Right-click** status bar icon → Quick actions menu (with the **Proxy Servers** management entry)
 
 ![Menu](images/memu_en.png)
 
@@ -240,12 +263,15 @@ AJMihomoControl/
 
 ![Control Panel](images/control_en.png)
 
-**Proxy Server Switching**
-- Automatically fetches available proxy nodes from mihomo
-- Automatically reads API secret from mihomo config
-- Click a node to switch the current proxy
-- One-click latency test for all nodes
-- Quick switch via right-click menu (no need to open control panel)
+**Proxy Server Switching / Config / Subscriptions**
+- Right-click menu → **Proxy Servers** opens the unified management window
+- Click a node to switch the current proxy; latency testing remains on the control panel
+- Add, edit and delete nodes in `config.yaml` `proxies` in the same window; edit raw mihomo proxy YAML
+- New nodes are added to the `PROXY` group; renames/deletes update group references
+- Add subscription URLs and click **Add & Apply** in the same window (Base64 / URI / Clash YAML supported)
+- Subscription nodes are imported into `proxies`, then behave exactly like regular nodes: switch, edit, delete
+- Saving/importing restarts mihomo and backs up the config to `config.yaml.ajbak`
+- Subscription URLs live in `~/Library/Application Support/AJMihomoControl/subscriptions.json`, never in source code
 
 **Mihomo Config**
 - Configure binary path (auto-detected for Homebrew)
@@ -269,6 +295,12 @@ When enabled, it configures:
 - Fetches all available proxy nodes (filters out system proxies like DIRECT, REJECT, etc.)
 - Switches the current proxy via API
 - Tests proxy latency (`GET /proxies/:name/delay`)
+
+**Custom Subscriptions** import nodes as regular proxies:
+- The app downloads the subscription, parses Base64 / URI / Clash YAML, and writes nodes into `proxies`
+- Existing names are skipped, so your edits are never overwritten
+- Imported nodes can be switched, edited and deleted in the same window
+- Legacy `proxy-providers` / `use` entries written by older versions are cleaned up automatically
 
 ---
 

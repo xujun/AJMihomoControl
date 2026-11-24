@@ -1,5 +1,5 @@
 APP_NAME = MihomoControl
-APP_VERSION = 1.1.1
+APP_VERSION = 1.2.0
 APP_BUNDLE = $(APP_NAME).app
 RELEASE_DIR = release
 DMG_NAME = $(APP_NAME)-v$(APP_VERSION).dmg
